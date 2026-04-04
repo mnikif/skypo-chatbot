@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Test Page</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 0 20px;
+      color: #333;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    p { color: #666; line-height: 1.6; }
+    .tip {
+      background: #f0f9ff;
+      border-left: 3px solid #0ea5e9;
+      padding: 12px 16px;
+      margin-top: 24px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Skypomedia Chatbot — Local Test</h1>
+  <p>This page tests the chatbot widget running on <code>localhost:3001</code>.</p>
+  <p>You should see a chat button in the <strong>bottom-right corner</strong>. Click it to open the chat, then try asking for a quote to trigger lead capture.</p>
+  <div class="tip">
+    After a lead is captured, check the dashboard at:<br>
+    <a href="http://localhost:3001/dashboard" target="_blank">http://localhost:3001/dashboard?pw=yourpassword</a>
+  </div>
+
+  <script src="http://localhost:3001/chatbot.js?client=test"></script>
+</body>
+</html>
