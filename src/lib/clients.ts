@@ -21,15 +21,29 @@ const clients: Record<string, ClientConfig> = {
     leadCapture: true,
   },
 
-  // Add clients here as you sell them, e.g.:
-  // "north-shore-auto": {
-  //   name: "North Shore Auto Detailing",
-  //   services: ["Full Detail", "Interior Detail", "Exterior Wash"],
-  //   hours: "Mon–Sat 8am–5pm",
-  //   phone: "(978) 555-1234",
-  //   faqs: ["Q: Do you come to me? A: Yes, we're fully mobile."],
-  //   leadCapture: true,
-  // },
+  "mandc": {
+    name: "M&C Luxury Detailing",
+    services: [
+      "Interior Detail (Bronze $129 / Silver $169 / Gold $219)",
+      "Exterior Detail (Bronze $89 / Silver $129 / Gold $169)",
+      "Full Detail (Bronze $189 / Silver $269 / Gold $359)",
+      "Add-on: Pet Hair Removal $50",
+    ],
+    hours: "Mon–Sat 10am–6pm, closed Sunday",
+    phone: "(781) 632-5193",
+    faqs: [
+      "Q: What's included in a Bronze Interior? A: Full vacuum, dashboard wipe-down, door panels, interior windows, and air freshener. Takes 1–2 hours.",
+      "Q: What's included in a Silver Interior? A: Everything in Bronze plus steam clean, leather conditioning, and center console/vent deep clean. Takes 2–3 hours.",
+      "Q: What's included in a Gold Interior? A: Everything in Silver plus carpet shampoo, seat shampoo, headliner wipe-down, and trunk detail. Takes 5–6 hours.",
+      "Q: What's included in a Bronze Exterior? A: Hand wash, wheel and tire scrub, tire dressing, and exterior window cleaning. Takes about 1 hour.",
+      "Q: What's included in a Silver Exterior? A: Everything in Bronze plus clay bar, trim dressing, door jamb wipe, and exterior wax. Takes 1.5–2 hours.",
+      "Q: What's included in a Gold Exterior? A: Everything in Silver plus engine bay wipe-down and wheel well cleaning. Takes 2–2.5 hours.",
+      "Q: Are you mobile? A: Yes, we come to you anywhere on the North Shore of MA.",
+      "Q: Do prices vary by vehicle size? A: Yes, prices listed are starting rates for standard sedans. SUVs and heavily soiled vehicles may cost more.",
+      "Q: Do you remove pet hair? A: Yes, pet hair removal is a $50 add-on.",
+    ],
+    leadCapture: true,
+  },
 };
 
 export function getClient(clientId: string): ClientConfig | null {
