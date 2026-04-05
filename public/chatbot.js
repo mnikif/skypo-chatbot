@@ -168,6 +168,8 @@
       font-family: inherit;
       max-height: 80px;
       overflow-y: auto;
+      color: #111;
+      background: #fff;
     }
     #skypo-chat-input:focus { border-color: #111; }
     #skypo-chat-send {
