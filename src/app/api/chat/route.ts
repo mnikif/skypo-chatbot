@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anthropic } from "@/lib/anthropic";
+import { supabase } from "@/lib/supabase";
 import { getClient } from "@/lib/clients";
 
 export const runtime = "nodejs";
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
   });
 
   const encoder = new TextEncoder();
+  let fullResponse = "";
 
   const readable = new ReadableStream({
     async start(controller) {
@@ -59,10 +61,29 @@ export async function POST(req: NextRequest) {
           chunk.type === "content_block_delta" &&
           chunk.delta.type === "text_delta"
         ) {
+          fullResponse += chunk.delta.text;
           controller.enqueue(encoder.encode(chunk.delta.text));
         }
       }
       controller.close();
+
+      // After streaming, check if a lead was captured
+      const match = fullResponse.match(/LEAD_CAPTURED:\s*(.+?)\s*\|\s*(.+)/);
+      if (match) {
+        const name = match[1].trim();
+        const phone = match[2].trim();
+        const chatHistory = [
+          ...messages,
+          { role: "assistant" as const, content: fullResponse },
+        ];
+
+        await supabase.from("leads").insert({
+          client_id: clientId,
+          name,
+          phone,
+          chat_history: chatHistory,
+        });
+      }
     },
   });
 

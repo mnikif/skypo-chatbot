@@ -3,11 +3,12 @@ import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { clientId, name, phone, summary } = body as {
+  const { clientId, name, phone, summary, chat_history } = body as {
     clientId: string;
     name: string;
     phone: string;
     summary?: string;
+    chat_history?: { role: string; content: string }[];
   };
 
   if (!clientId || !name || !phone) {
@@ -19,6 +20,7 @@ export async function POST(req: NextRequest) {
     name,
     phone,
     summary: summary ?? null,
+    chat_history: chat_history ?? null,
   });
 
   if (error) {
