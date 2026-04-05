@@ -65,9 +65,8 @@ export async function POST(req: NextRequest) {
           controller.enqueue(encoder.encode(chunk.delta.text));
         }
       }
-      controller.close();
 
-      // After streaming, check if a lead was captured
+      // Save lead BEFORE closing so Vercel doesn't kill the function early
       const match = fullResponse.match(/LEAD_CAPTURED:\s*(.+?)\s*\|\s*(.+)/);
       if (match) {
         const name = match[1].trim();
@@ -84,6 +83,8 @@ export async function POST(req: NextRequest) {
           chat_history: chatHistory,
         });
       }
+
+      controller.close();
     },
   });
 
