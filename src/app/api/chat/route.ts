@@ -79,7 +79,6 @@ export async function POST(req: NextRequest) {
         const summary = messages
           .filter((m) => m.role === "user")
           .map((m) => m.content)
-          .slice(-3)
           .join(" / ");
 
         await supabase.from("leads").insert({
