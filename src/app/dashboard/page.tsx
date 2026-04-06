@@ -108,7 +108,6 @@ export default async function DashboardPage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Client</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-600">Phone</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-600">Summary</th>
@@ -118,11 +117,6 @@ export default async function DashboardPage({
               <tbody>
                 {leads.map((lead) => (
                   <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4">
-                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded font-mono">
-                        {lead.client_id}
-                      </span>
-                    </td>
                     <td className="py-3 px-4 font-medium text-gray-900">{lead.name}</td>
                     <td className="py-3 px-4">
                       <a href={`tel:${lead.phone}`} className="text-blue-600 hover:underline">
