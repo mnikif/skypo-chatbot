@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import LeadsTable from "./LeadsTable";
 
 export const dynamic = "force-dynamic";
 
@@ -104,39 +103,7 @@ export default async function DashboardPage({
             <p className="text-gray-400 text-sm">No leads yet. Once visitors submit their info via the chatbot, they&apos;ll appear here.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Phone</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Summary</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((lead) => (
-                  <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-gray-900">{lead.name}</td>
-                    <td className="py-3 px-4">
-                      <a href={`tel:${lead.phone}`} className="text-blue-600 hover:underline">
-                        {lead.phone}
-                      </a>
-                    </td>
-                    <td className="py-3 px-4 text-gray-500 max-w-xs truncate">{lead.summary ?? "—"}</td>
-                    <td className="py-3 px-4 text-gray-400 whitespace-nowrap">
-                      {new Date(lead.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <LeadsTable leads={leads} />
         )}
       </div>
     </div>
