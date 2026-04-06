@@ -388,29 +388,7 @@
     if (leadCaptured) return;
     var match = text.match(/LEAD_CAPTURED:\s*(.+?)\s*\|\s*(.+)/);
     if (match) {
-      var name = match[1].trim();
-      var phone = match[2].trim();
       leadCaptured = true;
-
-      // Build a short summary from recent messages
-      var summary = messages
-        .filter(function (m) { return m.role === "user"; })
-        .map(function (m) { return m.content; })
-        .slice(-3)
-        .join(" / ");
-
-      fetch(BASE_URL + "/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId: clientId,
-          name: name,
-          phone: phone,
-          summary: summary,
-        }),
-      }).catch(function (e) {
-        console.error("[Skypo] Lead save failed:", e);
-      });
     }
   }
 
