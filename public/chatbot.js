@@ -4,7 +4,9 @@
   // --- Config ---
   var scriptTag = document.currentScript;
   var scriptSrc = scriptTag ? scriptTag.src : "";
-  var clientId = new URL(scriptSrc).searchParams.get("client") || "test";
+  var scriptParams = new URL(scriptSrc).searchParams;
+  var clientId = scriptParams.get("client") || "test";
+  var clientToken = scriptParams.get("token") || "";
   var BASE_URL = scriptSrc.split("/chatbot.js")[0];
 
   // --- State ---
@@ -334,7 +336,7 @@
 
     fetch(BASE_URL + "/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Client-Token": clientToken },
       body: JSON.stringify({ messages: messages, clientId: clientId }),
     })
       .then(function (res) {

@@ -1,4 +1,7 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { verifySession } from "@/lib/session";
 import LeadsTable from "./LeadsTable";
 
 export const dynamic = "force-dynamic";
@@ -37,49 +40,20 @@ function getClientName(clientId: string | null): string | null {
   }
 }
 
-function resolveAccess(pw: string | undefined): { authorized: boolean; clientId: string | null } {
-  if (!pw) return { authorized: false, clientId: null };
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("session")?.value;
+  const clientIdFromSession = token ? verifySession(token) : null;
 
-  const raw = process.env.CLIENT_PASSWORDS;
-  if (!raw) return { authorized: false, clientId: null };
-
-  let map: Record<string, string>;
-  try {
-    map = JSON.parse(raw);
-  } catch {
-    return { authorized: false, clientId: null };
+  if (!clientIdFromSession) {
+    redirect("/login");
   }
 
-  const entry = Object.entries(map).find(([, password]) => password === pw);
-  if (!entry) return { authorized: false, clientId: null };
-
-  const [clientId] = entry;
-  return { authorized: true, clientId: clientId === 'admin' ? null : clientId };
-}
-
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ pw?: string }>;
-}) {
-  const params = await searchParams;
-  const { authorized, clientId } = resolveAccess(params.pw);
-
-  if (!authorized) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow p-8 w-full max-w-sm text-center">
-          <h1 className="text-xl font-semibold mb-2">Dashboard</h1>
-          <p className="text-gray-500 text-sm mb-6">
-            Add <code className="bg-gray-100 px-1 rounded">?pw=your_password</code> to the URL to access.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isAdmin = clientIdFromSession === "admin";
+  const clientId = isAdmin ? null : clientIdFromSession;
 
   const allLeads = await getLeads();
-  const leads = clientId ? allLeads.filter(l => l.client_id === clientId) : allLeads;
+  const leads = clientId ? allLeads.filter((l) => l.client_id === clientId) : allLeads;
   const businessName = getClientName(clientId);
 
   return (
@@ -93,9 +67,19 @@ export default async function DashboardPage({
             <h1 className="text-2xl font-bold text-gray-900">Leads Dashboard</h1>
             <p className="text-gray-500 text-sm mt-1">{leads.length} total leads captured</p>
           </div>
-          <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
-            Live
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
+              Live
+            </span>
+            <form action="/api/auth/logout" method="POST">
+              <button
+                type="submit"
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
 
         {leads.length === 0 ? (

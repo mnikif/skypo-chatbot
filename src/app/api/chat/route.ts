@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { anthropic } from "@/lib/anthropic";
 import { supabase } from "@/lib/supabase";
 import { getClient } from "@/lib/clients";
+import { getChatRateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -9,6 +10,21 @@ type Message = {
   role: "user" | "assistant";
   content: string;
 };
+
+function validateClientToken(req: NextRequest, clientId: string): boolean {
+  const raw = process.env.CLIENT_TOKENS;
+  if (!raw) return false;
+  let map: Record<string, string>;
+  try {
+    map = JSON.parse(raw);
+  } catch {
+    return false;
+  }
+  const expectedToken = map[clientId];
+  if (!expectedToken) return false;
+  const provided = req.headers.get("x-client-token");
+  return provided === expectedToken;
+}
 
 function buildSystemPrompt(clientId: string): string {
   const client = getClient(clientId);
@@ -42,6 +58,27 @@ export async function POST(req: NextRequest) {
 
   if (!messages || !clientId) {
     return NextResponse.json({ error: "Missing messages or clientId" }, { status: 400 });
+  }
+
+  // Validate client token
+  if (!validateClientToken(req, clientId)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Rate limit by IP
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+  const { success } = await getChatRateLimit().limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a moment." },
+      { status: 429 }
+    );
+  }
+
+  // Enforce max message length
+  const lastMsg = messages[messages.length - 1];
+  if (lastMsg?.content && lastMsg.content.length > 2000) {
+    return NextResponse.json({ error: "Message too long" }, { status: 400 });
   }
 
   const stream = await anthropic.messages.stream({
@@ -108,7 +145,7 @@ export async function OPTIONS() {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers": "Content-Type, X-Client-Token",
     },
   });
 }
