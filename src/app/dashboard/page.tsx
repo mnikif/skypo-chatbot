@@ -26,6 +26,18 @@ async function getLeads(): Promise<Lead[]> {
   return data ?? [];
 }
 
+function getClientName(clientId: string | null): string | null {
+  if (!clientId) return null;
+  const raw = process.env.CLIENT_NAMES;
+  if (!raw) return null;
+  try {
+    const map: Record<string, string> = JSON.parse(raw);
+    return map[clientId] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function resolveAccess(pw: string | undefined): { authorized: boolean; clientId: string | null } {
   if (!pw) return { authorized: false, clientId: null };
 
@@ -69,12 +81,16 @@ export default async function DashboardPage({
 
   const allLeads = await getLeads();
   const leads = clientId ? allLeads.filter(l => l.client_id === clientId) : allLeads;
+  const businessName = getClientName(clientId);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto py-10 px-4">
         <div className="flex items-center justify-between mb-8">
           <div>
+            {businessName && (
+              <p className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-1">{businessName}</p>
+            )}
             <h1 className="text-2xl font-bold text-gray-900">Leads Dashboard</h1>
             <p className="text-gray-500 text-sm mt-1">{leads.length} total leads captured</p>
           </div>
