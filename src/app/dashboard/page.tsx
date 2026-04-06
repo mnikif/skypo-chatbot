@@ -26,16 +26,35 @@ async function getLeads(): Promise<Lead[]> {
   return data ?? [];
 }
 
+function resolveAccess(pw: string | undefined): { authorized: boolean; clientId: string | null } {
+  if (!pw) return { authorized: false, clientId: null };
+
+  const raw = process.env.CLIENT_PASSWORDS;
+  if (!raw) return { authorized: false, clientId: null };
+
+  let map: Record<string, string>;
+  try {
+    map = JSON.parse(raw);
+  } catch {
+    return { authorized: false, clientId: null };
+  }
+
+  const entry = Object.entries(map).find(([, password]) => password === pw);
+  if (!entry) return { authorized: false, clientId: null };
+
+  const [clientId] = entry;
+  return { authorized: true, clientId: clientId === 'admin' ? null : clientId };
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
   searchParams: Promise<{ pw?: string }>;
 }) {
   const params = await searchParams;
-  const pw = params.pw;
-  const correctPw = process.env.DASHBOARD_PASSWORD;
+  const { authorized, clientId } = resolveAccess(params.pw);
 
-  if (!correctPw || pw !== correctPw) {
+  if (!authorized) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow p-8 w-full max-w-sm text-center">
@@ -48,7 +67,8 @@ export default async function DashboardPage({
     );
   }
 
-  const leads = await getLeads();
+  const allLeads = await getLeads();
+  const leads = clientId ? allLeads.filter(l => l.client_id === clientId) : allLeads;
 
   return (
     <div className="min-h-screen bg-gray-50">
